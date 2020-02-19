@@ -8,6 +8,14 @@ export type Product = {
     state?:boolean
     visible?:boolean
  }
+export type Meal = {
+  id:number,
+  date:Date,
+  products:number[],
+  isDone:boolean
+}
+
+export const SCHEMA_VERSION = 10;
 
  const ProductSchema = {
     name: 'Product',
@@ -28,39 +36,17 @@ const MealSchema = {
     name: 'Meal',
     primaryKey:'id',
     properties: {
-        products:{type:'list',objectType:'Product',default:[]},
+        products:{type:'list',objectType:'int',default:[]},
         date: {type:'date',default: new Date()},
-        id: 'int'
+        id: 'int',
+        isDone: {type:'bool',default:false}
     }
+
 } 
 export {MealSchema};
 
-function initLocalDB(){
-
-Realm.open({schema: [ProductSchema],schemaVersion: 3});
-
-let realm = new Realm({schema: [MealSchema,ProductSchema],schemaVersion:3});
-
-realm.write(()=>{
-        let a=[];
-        a.push(realm.create('Product', {name: 'Jabłko',id:1}));
-        a.push(realm.create('Product', {name: 'Gruszka',id:2}));
-        a.push(realm.create('Product', {name: 'Banan',id:3}));
-        a.push(realm.create('Product', {name: 'Pomarancza',id:4}));
-        a.push(realm.create('Product', {name: 'Ryż',id:5}));
-        a.push(realm.create('Product', {name: 'Cukier',id:6}));
-        a.push(realm.create('Product', {name: 'Herbata',id:7}));
-        a.push(realm.create('Product', {name: 'Kawa',id:8}));
-        a.push(realm.create('Product', {name: 'Czosnek',id:9}));
-
-        let meal = realm.create('Meal',{products:[...a],id:1});
-
-        // a.forEach(element => {
-        //     meal.products.push(element);   
-        // });
-
-    })
-    realm.close();
-}export {initLocalDB};
+export function initLocalDB(){
+const realm = Realm.open({schema: [ProductSchema,MealSchema],schemaVersion: SCHEMA_VERSION});
+}
 
  

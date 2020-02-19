@@ -1,6 +1,11 @@
 package com.sibo;
 
 import com.facebook.react.ReactActivity;
+import android.content.Intent;
+import android.os.Bundle;
+import com.emekalites.react.alarm.notification.BundleJSONConverter;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import org.json.JSONObject;
 
 public class MainActivity extends ReactActivity {
 
@@ -12,4 +17,15 @@ public class MainActivity extends ReactActivity {
   protected String getMainComponentName() {
     return "sibo";
   }
+
+   @Override
+    public void onNewIntent(Intent intent) {
+        try {
+            Bundle bundle = intent.getExtras();
+            JSONObject data = BundleJSONConverter.convertToJSON(bundle);
+            getReactInstanceManager().getCurrentReactContext().getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("OnNotificationOpened", data.toString());
+        } catch (Exception e){
+            System.err.println("Exception when handling notification openned. " + e);
+        }
+    }
 }
