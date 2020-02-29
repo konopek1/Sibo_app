@@ -15,7 +15,7 @@ export type Meal = {
   isDone:boolean
 }
 
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
  const ProductSchema = {
     name: 'Product',
