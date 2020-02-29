@@ -32,16 +32,18 @@ type Props = {};
 export const TIME_OFFSET = 3600000; //hours
 
 export default class Add extends React.Component<Props, State> {
+  private realm: Realm;
+
   constructor(props: Props) {
     super(props);
-    // initLocalDB();
-    let realm = new Realm({
+    this.realm = new Realm({
       schema: [ProductSchema, MealSchema],
       schemaVersion: SCHEMA_VERSION,
     });
 
-    const products = ([...realm.objects('Product')] as unknown) as Product[];
-
+    const products = ([
+      ...this.realm.objects('Product'),
+    ] as unknown) as Product[];
     this.state = {
       productList: products,
       delay: 0,
@@ -68,7 +70,18 @@ export default class Add extends React.Component<Props, State> {
       );
     else return null;
   };
-
+  //render button if elemnt not in list
+  renderButtonCond = () => {
+    if (
+      this.state.productList.some(p => {
+        return p.visible;
+      }) === false
+    ) {
+      this.setState({addButtonVisible: true});
+    } else {
+      this.setState({addButtonVisible: false});
+    }
+  };
   //incremental search
   search = (text: string) => {
     this.setState({searchText: text});
@@ -82,13 +95,6 @@ export default class Add extends React.Component<Props, State> {
           }),
         };
       });
-      if (
-        this.state.productList.some(p => {
-          return p.visible;
-        }) === false
-      )
-        this.setState({addButtonVisible: true});
-      else this.setState({addButtonVisible: false});
     } else {
       this.setState((prevState: State) => {
         return {
@@ -98,6 +104,7 @@ export default class Add extends React.Component<Props, State> {
         };
       });
     }
+    this.renderButtonCond();
   };
 
   onSubmit = () => {
@@ -111,7 +118,7 @@ export default class Add extends React.Component<Props, State> {
       schema: [ProductSchema, MealSchema],
       schemaVersion: SCHEMA_VERSION,
     });
-    const newMealId: number = Number(realm.objects('Meal').max('id')) + 1;
+    const newMealId: number = Number(realm.objects('Meal').max('id')||0) + 1;
 
     realm.write(() => {
       realm.create('Meal', {
@@ -127,6 +134,7 @@ export default class Add extends React.Component<Props, State> {
     const fireDate = ReactNativeAN.default.parseDate(
       new Date(rawfireDate.getTime() + this.state.delay * TIME_OFFSET),
     );
+
     const dishList: string = meal
       .map(ele => {
         return ele.name;
@@ -142,6 +150,15 @@ export default class Add extends React.Component<Props, State> {
       'srag',
       newMealId,
     );
+
+    this.resetList();
+  };
+
+  resetList = () => {
+    const products = ([
+      ...this.realm.objects('Product'),
+    ] as unknown) as Product[];
+    this.setState({productList:products})
   };
 
   addNewFood = () => {
@@ -149,7 +166,7 @@ export default class Add extends React.Component<Props, State> {
       schema: [ProductSchema, MealSchema],
       schemaVersion: SCHEMA_VERSION,
     });
-    const id = Number(realm.objects('Product').max('id')) + 1;
+    const id = Number(realm.objects('Product').max('id') || 0) + 1;
 
     realm.write(() => {
       realm.create('Product', {
