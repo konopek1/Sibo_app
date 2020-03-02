@@ -1,14 +1,13 @@
-import React, {cloneElement} from 'react';
+import React, { cloneElement } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  Button,
   FlatList,
-  Picker,
-  Alert,
+  Keyboard,
+  ViewComponent,
 } from 'react-native';
-import {CheckBox, Input} from 'react-native-elements';
+import { CheckBox, Input, Button, Slider } from 'react-native-elements';
 import {
   Product,
   ProductSchema,
@@ -16,8 +15,10 @@ import {
   initLocalDB,
   SCHEMA_VERSION,
 } from './types/Product';
-import {addAlarm} from './types/AlarmNotifier';
+import { addAlarm } from './types/AlarmNotifier';
 import Realm from 'realm';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import DropDownAlert from 'react-native-dropdownalert';
 const ReactNativeAN = require('react-native-alarm-notification');
 
 type State = {
@@ -33,6 +34,7 @@ export const TIME_OFFSET = 3600000; //hours
 
 export default class Add extends React.Component<Props, State> {
   private realm: Realm;
+  private dropDownAlertRef?: DropDownAlert;
 
   constructor(props: Props) {
     super(props);
@@ -46,7 +48,7 @@ export default class Add extends React.Component<Props, State> {
     ] as unknown) as Product[];
     this.state = {
       productList: products,
-      delay: 0,
+      delay: 2,
       searchText: '',
       addButtonVisible: false,
     };
@@ -72,26 +74,24 @@ export default class Add extends React.Component<Props, State> {
   };
   //render button if elemnt not in list
   renderButtonCond = () => {
-    if (
-      this.state.productList.some(p => {
-        return p.visible;
-      }) === false
-    ) {
-      this.setState({addButtonVisible: true});
-    } else {
-      this.setState({addButtonVisible: false});
-    }
+    this.setState((prevState: State) => {
+      return {
+        addButtonVisible: !prevState.productList.some(p => {
+          return p.visible;
+        })
+      }
+    })
   };
   //incremental search
   search = (text: string) => {
-    this.setState({searchText: text});
+    this.setState({ searchText: text });
     if (text != '') {
       this.setState((prevState: State) => {
         return {
           productList: prevState.productList.map(element => {
             return !element.name.includes(text)
-              ? {...element, visible: false}
-              : {...element, visible: true};
+              ? { ...element, visible: false }
+              : { ...element, visible: true };
           }),
         };
       });
@@ -99,12 +99,13 @@ export default class Add extends React.Component<Props, State> {
       this.setState((prevState: State) => {
         return {
           productList: prevState.productList.map(element => {
-            return {...element, visible: true};
+            return { ...element, visible: true };
           }),
         };
       });
     }
     this.renderButtonCond();
+
   };
 
   onSubmit = () => {
@@ -118,7 +119,7 @@ export default class Add extends React.Component<Props, State> {
       schema: [ProductSchema, MealSchema],
       schemaVersion: SCHEMA_VERSION,
     });
-    const newMealId: number = Number(realm.objects('Meal').max('id')||0) + 1;
+    const newMealId: number = Number(realm.objects('Meal').max('id') || 0) + 1;
 
     realm.write(() => {
       realm.create('Meal', {
@@ -151,6 +152,8 @@ export default class Add extends React.Component<Props, State> {
       newMealId,
     );
 
+    console.log(fireDate);
+    this.dropDownAlertRef!.alertWithType('success','Dodano',`Data alertu: ${fireDate}`);
     this.resetList();
   };
 
@@ -158,7 +161,7 @@ export default class Add extends React.Component<Props, State> {
     const products = ([
       ...this.realm.objects('Product'),
     ] as unknown) as Product[];
-    this.setState({productList:products})
+    this.setState({ productList: products })
   };
 
   addNewFood = () => {
@@ -184,8 +187,11 @@ export default class Add extends React.Component<Props, State> {
 
     this.setState((prevState: State) => {
       prevState.productList.push(product);
-      return {productList: prevState.productList, searchText: ''};
+      return { productList: prevState.productList, searchText: '' };
     });
+
+    this.search('');
+    Keyboard.dismiss();
   };
 
   checkBoxById = (id: number) => {
@@ -193,7 +199,7 @@ export default class Add extends React.Component<Props, State> {
       return {
         productList: prevState.productList.map(element => {
           return element.id === id
-            ? {...element, state: !element.state}
+            ? { ...element, state: !element.state }
             : element;
         }),
       } as State;
@@ -202,18 +208,31 @@ export default class Add extends React.Component<Props, State> {
   render() {
     return (
       <View style={styles.container}>
+        <View><DropDownAlert ref={ref => this.dropDownAlertRef = (ref||undefined)}></DropDownAlert></View>
         <View style={styles.inputContainer}>
           <Input
-            onChangeText={(text: string) => {
-              this.search(text);
-            }}></Input>
+            onChangeText={(text: string) => { this.search(text) }}
+            placeholder="Apple ..."
+            value={this.state.searchText}
+            leftIcon={<Icon
+              name="search"
+              color="grey"
+              size={21}
+            />}
+            leftIconContainerStyle={{ paddingRight: 5 }}
+          ></Input>
         </View>
 
         {this.state.addButtonVisible && (
           <View style={styles.addButton}>
             <Button
-              title="+"
-              color="green"
+              type="outline"
+              icon={<Icon
+                name="plus"
+                size={25}
+                color="green"
+              />}
+              buttonStyle={{ borderRadius: 10 }}
               onPress={() => {
                 this.addNewFood();
               }}></Button>
@@ -224,30 +243,34 @@ export default class Add extends React.Component<Props, State> {
           <FlatList
             style={styles.list}
             data={this.state.productList}
-            renderItem={({item}) => this.listItem(item)}
+            renderItem={({ item }) => this.listItem(item)}
           />
         </View>
 
-        <View style={styles.submit}>
-          <Text>Alert in:</Text>
-          <Picker
-            selectedValue={this.state.delay}
-            style={{height: 100, width: 100}}
-            onValueChange={(itemValue, itemIndex) =>
-              this.setState({delay: itemValue})
-            }>
-            <Picker.Item label="1" value="1" />
-            <Picker.Item label="2" value="2" />
-            <Picker.Item label="3" value="3" />
-            <Picker.Item label="4" value="4" />
-            <Picker.Item label="5" value="5" />
-            <Picker.Item label="6" value="6" />
-          </Picker>
-          <Button
-            title="Submit"
-            onPress={() => {
-              this.onSubmit();
-            }}></Button>
+        <View style={styles.sliderAndFriends}>
+          <View>
+            <Text style={{ textAlign: 'center', fontSize: 16 }}>Otrzymasz powiadomienie za {this.state.delay} godziny.</Text>
+          </View>
+          <Slider
+            value={this.state.delay}
+            step={1}
+            minimumValue={1}
+            maximumValue={6}
+            onValueChange={value => this.setState({ delay: value })}
+            style={{ marginHorizontal: 20 }}
+          />
+          <View style={{ alignItems: "center" }}>
+            <Button
+              type="clear"
+              icon={<Icon
+                name="check-circle"
+                size={60}
+                color="#7bc043"
+              />} 
+              onPress={() => {
+                this.onSubmit();
+              }}></Button>
+          </View>
         </View>
       </View>
     );
@@ -268,15 +291,10 @@ const styles = StyleSheet.create({
     flex: 4,
     marginBottom: 10,
   },
-  submit: {
-    flexShrink: 1,
-    padding: 0,
-    alignSelf: 'stretch',
+  sliderAndFriends:{
+    flex: 1, 
     justifyContent: 'center',
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderTopWidth: 1,
+    minHeight:100
   },
   inputContainer: {
     height: 80,

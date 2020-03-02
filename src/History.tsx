@@ -3,11 +3,10 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
-  DeviceEventEmitter,
   FlatList,
 } from 'react-native';
 import Realm from 'realm';
+import {Button} from 'react-native-elements';
 import {
   ProductSchema,
   MealSchema,
@@ -15,8 +14,8 @@ import {
   Meal,
   SCHEMA_VERSION,
 } from './types/Product';
-import {Header} from 'react-native/Libraries/NewAppScreen';
 import {RENDER_ITEMS} from './helper';
+import  Icon  from 'react-native-vector-icons/FontAwesome5';
 
 type State = {
   mealList: Meal[];
@@ -86,16 +85,26 @@ export default class Hisotry extends React.Component<Props, State> {
         return (
           <View style={styles.opinionButtonsContainer}>
             <Button
-              title="bad"
-              color="red"
-              onPress={() => {
-                this.handleResponse(false, meal);
-              }}></Button>
-            <Button
-              title="good"
-              color="green"
+              type="clear"
+              icon={<Icon
+                name="grin"
+                size={40}
+                color="green"
+              />
+              }
               onPress={() => {
                 this.handleResponse(true, meal);
+              }}></Button>
+            <Button
+              type="clear"
+              icon={<Icon
+                name="angry"
+                size={40}
+                color="red"
+              />}
+
+              onPress={() => {
+                this.handleResponse(false, meal);
               }}></Button>
           </View>
         );
@@ -104,7 +113,7 @@ export default class Hisotry extends React.Component<Props, State> {
     return (
       <View style={styles.listElement}>
         <View style={styles.mealText}>
-          <Text style={{flex: 1, flexWrap: 'wrap'}}>
+          <Text style={{flex: 1, flexWrap: 'wrap',fontSize:16}}>
             {!meal.isDone ? mealText : null}
           </Text>
         </View>
@@ -117,7 +126,7 @@ export default class Hisotry extends React.Component<Props, State> {
     return (
       <View style={styles.container}>
         <Text style={styles.headerText}>
-          Oceń sampoczucuie po ostatnich daniach :)
+          Oceń sampoczucuie po ostatnich daniach
         </Text>
         <View style={styles.listContainer}>
           <FlatList

@@ -14,10 +14,10 @@ const ProductDisplay: React.SFC<Props> = (props: Props) => {
 
   return (
     <View style={containerStyle(chance)}>
-      <Text>
-        {props.index}.{product.name}
+      <Text style={styles.textName}>
+        {props.index + 1}.{product.name}
       </Text>
-      <Text>{Math.floor(chance)}%</Text>
+      <Text style={styles.textChance}>{Math.floor(chance)}%</Text>
     </View>
   );
 };
@@ -44,10 +44,10 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   textName: {
-    flex: 1,
+    fontSize:16
   },
   textChance: {
-    flex: 1,
+    fontSize:16
   },
 });
 

@@ -6,12 +6,12 @@ import {
   StyleSheet,
   Text,
   View,
-  Button,
-  AsyncStorage,
   DeviceEventEmitter,
 } from 'react-native';
+import {Button} from 'react-native-elements';
 import Realm from 'realm';
 import {initLocalDB} from './src/types/Product';
+import   Icon  from 'react-native-vector-icons/FontAwesome5';
 
 type State = {
   contentIndex: Content;
@@ -68,30 +68,47 @@ export default class App extends React.Component<null, State> {
   render() {
     return (
       <View style={styles.container}>
+        
         <View style={styles.content}>{this.renderContentByIndex()}</View>
         <View style={styles.menu} accessibilityRole="menu">
           <View accessibilityRole="menuitem" style={styles.menuButton}>
             <Button
-              title="add"
+              icon={<Icon
+                name="carrot"
+                size={30}
+                color="#fe8a71"
+              />
+              }
+              type="outline"
               onPress={() => {
                 this.setcontentIndex(Content.Add);
               }}></Button>
           </View>
           <View accessibilityRole="menuitem" style={styles.menuButton}>
             <Button
-              title="history"
+              type="outline"
+              icon = {<Icon
+                  name="book-dead"
+                  size={30}
+                  color="#4a4e4d"
+                />
+              }
               onPress={() => {
                 this.setcontentIndex(Content.History);
               }}></Button>
           </View>
           <View accessibilityRole="menuitem" style={styles.menuButton}>
             <Button
-              title="overview"
+              type="outline"
+              icon = {<Icon
+                  name="clipboard-list"
+                  size={30}
+                  color="#63ace5"
+                />}
               onPress={() => {
                 this.setcontentIndex(Content.Overview);
               }}></Button>
           </View>
-          {/* <View accessibilityRole='menuitem' ><Icon name='add_box'></Icon></View> */}
         </View>
       </View>
     );
@@ -105,7 +122,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   menuButton: {
-    width: 100,
+    width:100
   },
   menu: {
     height: 80,
