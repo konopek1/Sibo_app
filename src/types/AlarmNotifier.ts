@@ -24,7 +24,8 @@ export const CHANNEL_ID="id_123456789";
 
 
 
-export function addAlarm(title:string,message:string,id:string,color:string,fire_date:Date,tag="my tag",data:Object) {
+export function addAlarm(title:string,message:string,id:string|number,color:string,fire_date:Date,tag="my tag",data:Object) {
+        if (typeof id === "number") id = id.toString();
         const notifyData:Alarm={title,message,id,color,fire_date,tag,data,auto_cancel:true,small_icon:"ic_launcher",channel:CHANNEL_ID,
         vibrate:true,vibration:100,play_sound:true,schedule_once:false};
         ReactNativeAN.default.scheduleAlarm(notifyData);

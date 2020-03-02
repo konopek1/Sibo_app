@@ -61,7 +61,7 @@ export default class Hisotry extends React.Component<Props, State> {
         const meals = this.realm.objects('Meal');
         return {
           mealList: ([
-            ...meals.sorted('date', false).filtered('isDone = false '),
+            ...meals.sorted('date', false).filtered('isDone = false ')
           ].slice(0, RENDER_ITEMS) as unknown) as Meal[],
         } as State;
       });
@@ -132,6 +132,7 @@ export default class Hisotry extends React.Component<Props, State> {
           <FlatList
             data={this.state.mealList}
             renderItem={({item}) => this.listMeal(item)}
+            keyExtractor={(product) => {return product.id.toString()}}
           />
         </View>
       </View>

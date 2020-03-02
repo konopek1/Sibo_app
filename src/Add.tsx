@@ -48,7 +48,7 @@ export default class Add extends React.Component<Props, State> {
     ] as unknown) as Product[];
     this.state = {
       productList: products,
-      delay: 2,
+      delay: 0.01,
       searchText: '',
       addButtonVisible: false,
     };
@@ -145,7 +145,7 @@ export default class Add extends React.Component<Props, State> {
     addAlarm(
       `Daj znać jak twoj sampoczucie po ostatnimm posiłku?`,
       'Twoj ostatni posiłek to  ' + dishList,
-      '1',
+       rawfireDate.getTime(),
       'green',
       fireDate,
       'srag',
@@ -244,6 +244,7 @@ export default class Add extends React.Component<Props, State> {
             style={styles.list}
             data={this.state.productList}
             renderItem={({ item }) => this.listItem(item)}
+            keyExtractor={(product) => {return product.name}}
           />
         </View>
 

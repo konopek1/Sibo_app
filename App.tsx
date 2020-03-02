@@ -8,10 +8,11 @@ import {
   View,
   DeviceEventEmitter,
 } from 'react-native';
-import {Button} from 'react-native-elements';
+import { Button } from 'react-native-elements';
 import Realm from 'realm';
-import {initLocalDB} from './src/types/Product';
-import   Icon  from 'react-native-vector-icons/FontAwesome5';
+import { initLocalDB } from './src/types/Product';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import GestureRecognizer from 'react-native-swipe-gestures';
 
 type State = {
   contentIndex: Content;
@@ -20,8 +21,8 @@ type State = {
 
 enum Content {
   Add,
-  Overview,
   History,
+  Overview
 }
 
 export default class App extends React.Component<null, State> {
@@ -41,7 +42,7 @@ export default class App extends React.Component<null, State> {
 
   async onNotificationOpened(e: any) {
     console.log('Notify fire');
-    this.setState({contentIndex: Content.History, event: e});
+    this.setState({ contentIndex: Content.History, event: e });
   }
 
   setcontentIndex(contentIndex: Content) {
@@ -63,54 +64,57 @@ export default class App extends React.Component<null, State> {
     }
   }
 
-  mountPersistanceData() {}
+  mountPersistanceData() { }
 
   render() {
     return (
-      <View style={styles.container}>
-        
-        <View style={styles.content}>{this.renderContentByIndex()}</View>
-        <View style={styles.menu} accessibilityRole="menu">
-          <View accessibilityRole="menuitem" style={styles.menuButton}>
-            <Button
-              icon={<Icon
-                name="carrot"
-                size={30}
-                color="#fe8a71"
-              />
-              }
-              type="outline"
-              onPress={() => {
-                this.setcontentIndex(Content.Add);
-              }}></Button>
-          </View>
-          <View accessibilityRole="menuitem" style={styles.menuButton}>
-            <Button
-              type="outline"
-              icon = {<Icon
+      <GestureRecognizer
+          onSwipeRight={()=>{this.setcontentIndex((Math.abs(this.state.contentIndex + 1) % 3))}}
+          onSwipeLeft={()=>{this.setcontentIndex(Math.abs(this.state.contentIndex - 1 % 3))}}
+          style={styles.container}
+        > 
+          <View style={styles.content}>{this.renderContentByIndex()}</View>
+          <View style={styles.menu} accessibilityRole="menu">
+            <View accessibilityRole="menuitem" style={styles.menuButton}>
+              <Button
+                icon={<Icon
+                  name="carrot"
+                  size={30}
+                  color="#fe8a71"
+                />
+                }
+                type="outline"
+                onPress={() => {
+                  this.setcontentIndex(Content.Add);
+                }}></Button>
+            </View>
+            <View accessibilityRole="menuitem" style={styles.menuButton}>
+              <Button
+                type="outline"
+                icon={<Icon
                   name="book-dead"
                   size={30}
                   color="#4a4e4d"
                 />
-              }
-              onPress={() => {
-                this.setcontentIndex(Content.History);
-              }}></Button>
-          </View>
-          <View accessibilityRole="menuitem" style={styles.menuButton}>
-            <Button
-              type="outline"
-              icon = {<Icon
+                }
+                onPress={() => {
+                  this.setcontentIndex(Content.History);
+                }}></Button>
+            </View>
+            <View accessibilityRole="menuitem" style={styles.menuButton}>
+              <Button
+                type="outline"
+                icon={<Icon
                   name="clipboard-list"
                   size={30}
                   color="#63ace5"
                 />}
-              onPress={() => {
-                this.setcontentIndex(Content.Overview);
-              }}></Button>
+                onPress={() => {
+                  this.setcontentIndex(Content.Overview);
+                }}></Button>
+            </View>
           </View>
-        </View>
-      </View>
+      </GestureRecognizer>
     );
   }
 }
@@ -122,7 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   menuButton: {
-    width:100
+    width: 100
   },
   menu: {
     height: 80,

@@ -55,6 +55,7 @@ export default class OverView extends React.Component<Props, State> {
           <FlatList
             data={this.state.productList}
             renderItem={({item, index}) => this.listProduct(item, index)}
+            keyExtractor={(item) => {return item.name}}
           />
         </View>
       </View>
